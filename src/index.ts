@@ -3,6 +3,7 @@ import express, { Request, Response } from 'express';
 import path from 'path';
 import logger from 'morgan';
 import bodyParser from 'body-parser';
+import rooms  from './controllers/roomsController';
 
 const app = express();
 
@@ -11,6 +12,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use('/rooms', rooms);
 
 // catch 404 and forward to error handler
 app.use((req: Request, res: Response) => { res.status(404).send() });
