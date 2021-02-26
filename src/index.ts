@@ -10,7 +10,8 @@ import bodyParser from 'body-parser';
 import rooms  from './controllers/roomsController';
 import lecturers from './controllers/lecturersController';
 import subjects from './controllers/subjectsController';
-import courses from './controllers/coursesController'
+import courses from './controllers/coursesController';
+import timetables from './controllers/timetableController';
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use('/rooms', rooms);
 app.use('/lecturers', lecturers);
 app.use('/subjects', subjects);
 app.use('/courses', courses);
+app.use('/timetables', timetables);
 
 // catch 404 and forward to error handler
 app.use((req: Request, res: Response) => { res.status(404).send() });
