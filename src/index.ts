@@ -3,9 +3,14 @@ import express, { Request, Response } from 'express';
 import path from 'path';
 import logger from 'morgan';
 import bodyParser from 'body-parser';
+
+/**
+ * Controllers
+ */
 import rooms  from './controllers/roomsController';
-import lecturers from './controllers/LecturersController';
+import lecturers from './controllers/lecturersController';
 import subjects from './controllers/subjectsController';
+import courses from './controllers/coursesController'
 
 const app = express();
 
@@ -18,6 +23,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/rooms', rooms);
 app.use('/lecturers', lecturers);
 app.use('/subjects', subjects);
+app.use('/courses', courses);
 
 // catch 404 and forward to error handler
 app.use((req: Request, res: Response) => { res.status(404).send() });
