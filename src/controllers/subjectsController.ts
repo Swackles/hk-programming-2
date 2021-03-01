@@ -1,57 +1,38 @@
 import express, { Request, Response } from 'express';
+import { findSubject } from './../middleware/findMiddleware';
+import { Subjects } from './../services/';
 
 const router = express.Router();
 
-interface Subject {
-  id: number,
-  name: string,
-  code: string
-}
-
-const subjects: Subject[] = [
-  {
-    id: 1,
-    name: 'Vanatehnika restaureerimine',
-    code: 'HKM5037.HK'
-  },
-  {
-    id: 2,
-    name: 'Meistritöökoja praktika II',
-    code: 'HKM5095.HK'
-  },
-  {
-    id: 3,
-    name: 'Autoriõigus ja patent',
-    code: 'HKM5046.HK'
-  }
-]
-
 router.get('/', async (req: Request, res: Response) => {
-  res.send(subjects);
+  res.send(Subjects.findAll());
 })
 
-router.get('/:id([0-9]+)', async (req: Request, res: Response) => {
+router.get('/:id([0-9]+)', findSubject, async (req: Request, res: Response) => {
   const { id } = req.params;
-  
-  res.send(subjects.find(subject => subject.id == parseInt(id)))
+
+  res.send(Subjects.find(id))
 })
 
-router.delete('/:id([0-9]+)', async (req: Request, res: Response) => {
-  const { id } = req.params;
+router.delete('/:id([0-9]+)', findSubject, async (req: Request, res: Response) => {
+  const { subject } = res.locals;
 
-  res.send(subjects.find(subject => subject.id == parseInt(id)))
+  res.send(subject.delete())
 })
 
-router.put('/:id([0-9]+)', async (req: Request, res: Response) => {
-  const { id } = req.params;
+router.put('/:id([0-9]+)', findSubject, async (req: Request, res: Response) => {
+  let { subject } = res.locals;
 
-  res.send(subjects.find(subject => subject.id == parseInt(id)))
+  for (const column of Subjects.Columns.filter(x => x != 'id')) {
+    (<any>subject)[column] = (<any>req.body)[column]
+  }
+
+  res.send(subject.save())
 })
 
 router.post('/', async (req: Request, res: Response) => {
-  const { name, code } = req.body;
-
-  res.send({ id: subjects.length, name: name, code: code })
+  let subject = new Subjects(req.body);
+  res.send(subject.save());
 })
 
 export default router;

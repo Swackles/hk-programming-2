@@ -1,74 +1,38 @@
 import express, { Request, Response } from 'express';
+import { findTimetable } from './../middleware/findMiddleware';
+import { Timetables } from './../services/';
 
 const router = express.Router();
 
-interface BasicTable {
-  id: number,
-  name: string
-}
-
-interface Timetable {
-  id: number,
-  comment: string,
-  roomId: number,
-  lecturerId: number,
-  subjectId: number,
-  coursesId: number
-}
-
-const timetables: Timetable[] = [
-  {
-    id: 1,
-    comment: 'Kontaktõpe individuaalse graafiku järgi',
-    roomId: 1,
-    lecturerId: 1,
-    subjectId: 1,
-    coursesId: 1
-  },
-  {
-    id: 2,
-    comment: 'Kontaktõpe individuaalse graafiku järgi',
-    roomId: 2,
-    lecturerId: 2,
-    subjectId: 2,
-    coursesId: 2
-  },
-  {
-    id: 3,
-    comment: 'Zoom',
-    roomId: 3,
-    lecturerId: 3,
-    subjectId: 3,
-    coursesId: 3
-  },
-]
-
 router.get('/', async (req: Request, res: Response) => {
-  res.send(timetables);
+  res.send(Timetables.findAll());
 })
 
-router.get('/:id([0-9]+)', async (req: Request, res: Response) => {
+router.get('/:id([0-9]+)', findTimetable, async (req: Request, res: Response) => {
   const { id } = req.params;
-  
-  res.send(timetables.find(timetable => timetable.id == parseInt(id)))
+
+  res.send(Timetables.find(id))
 })
 
-router.delete('/:id([0-9]+)', async (req: Request, res: Response) => {
-  const { id } = req.params;
+router.delete('/:id([0-9]+)', findTimetable, async (req: Request, res: Response) => {
+  const { timetable } = res.locals;
 
-  res.send(timetables.find(timetable => timetable.id == parseInt(id)))
+  res.send(timetable.delete())
 })
 
-router.put('/:id([0-9]+)', async (req: Request, res: Response) => {
-  const { id } = req.params;
+router.put('/:id([0-9]+)', findTimetable, async (req: Request, res: Response) => {
+  let { timetable } = res.locals;
 
-  res.send(timetables.find(timetable => timetable.id == parseInt(id)))
+  for (const column of Timetables.Columns.filter(x => x != 'id')) {
+    (<any>timetable)[column] = (<any>req.body)[column]
+  }
+
+  res.send(timetable.save())
 })
 
 router.post('/', async (req: Request, res: Response) => {
-  const { comment, roomId, lecturerId, subjectId, coursesId } = req.body;
-
-  res.send({ id: timetables.length, comment: comment, roomId: roomId, lecturerId: lecturerId, subjectId: subjectId, coursesId: coursesId })
+  let timetable = new Timetables(req.body);
+  res.send(timetable.save());
 })
 
 export default router;

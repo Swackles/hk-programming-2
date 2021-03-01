@@ -1,53 +1,38 @@
 import express, { Request, Response } from 'express';
+import { findLecturer } from './../middleware/findMiddleware';
+import { Lecturers } from './../services/';
 
 const router = express.Router();
 
-interface Lecturer {
-  id: number,
-  name: string
-}
-
-const lecturers: Lecturer[] = [
-  {
-    id: 1,
-    name: 'Karl-Erik Hiiemaa'
-  },
-  {
-    id: 2,
-    name: 'Raivo Hein'
-  },
-  {
-    id: 3,
-    name: 'Eero Johannes'
-  }
-]
-
 router.get('/', async (req: Request, res: Response) => {
-  res.send(lecturers);
+  res.send(Lecturers.findAll());
 })
 
-router.get('/:id([0-9]+)', async (req: Request, res: Response) => {
+router.get('/:id([0-9]+)', findLecturer, async (req: Request, res: Response) => {
   const { id } = req.params;
-  
-  res.send(lecturers.find(lecturer => lecturer.id == parseInt(id)))
+
+  res.send(Lecturers.find(id))
 })
 
-router.delete('/:id([0-9]+)', async (req: Request, res: Response) => {
-  const { id } = req.params;
+router.delete('/:id([0-9]+)', findLecturer, async (req: Request, res: Response) => {
+  const { lecturer } = res.locals;
 
-  res.send(lecturers.find(lecturer => lecturer.id == parseInt(id)))
+  res.send(lecturer.delete())
 })
 
-router.put('/:id([0-9]+)', async (req: Request, res: Response) => {
-  const { id } = req.params;
+router.put('/:id([0-9]+)', findLecturer, async (req: Request, res: Response) => {
+  let { lecturer } = res.locals;
 
-  res.send(lecturers.find(lecturer => lecturer.id == parseInt(id)))
+  for (const column of Lecturers.Columns.filter(x => x != 'id')) {
+    (<any>lecturer)[column] = (<any>req.body)[column]
+  }
+
+  res.send(lecturer.save())
 })
 
 router.post('/', async (req: Request, res: Response) => {
-  const { name } = req.body;
-
-  res.send({ id: lecturers.length, name: name })
+  let lecturer = new Lecturers(req.body);
+  res.send(lecturer.save());
 })
 
 export default router;

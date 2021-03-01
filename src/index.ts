@@ -1,17 +1,28 @@
-import morgan from "morgan";
 import express, { Request, Response } from 'express';
 import path from 'path';
 import logger from 'morgan';
 import bodyParser from 'body-parser';
 
-/**
- * Controllers
- */
-import rooms  from './controllers/roomsController';
-import lecturers from './controllers/lecturersController';
-import subjects from './controllers/subjectsController';
-import courses from './controllers/coursesController';
-import timetables from './controllers/timetableController';
+/* Controllers */
+import { rooms, lecturers, subjects, courses, timetables }  from './controllers/';
+
+/* Services */
+import { Courses, Lecturers, Rooms, Subjects, Timetables } from './services/';
+
+declare module 'express' {
+  export interface Response {
+    locals: {
+      course?: Courses,
+      lecturer?: Lecturers,
+      room?: Rooms,
+      subject?: Subjects,
+      timetable?: Timetables
+    }
+  }
+  export interface Request {
+    params: { id?: number }
+  }
+}
 
 const app = express();
 

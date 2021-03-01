@@ -1,53 +1,38 @@
 import express, { Request, Response } from 'express';
+import { Courses } from './../services/';
+import { findCourse } from './../middleware/findMiddleware'
 
 const router = express.Router();
 
-interface Course {
-  id: number,
-  name: string
-}
-
-const courses: Course[] = [
-  {
-    id: 1,
-    name: 'RIF1'
-  },
-  {
-    id: 2,
-    name: 'RIF2'
-  },
-  {
-    id: 3,
-    name: 'RIF3'
-  }
-]
-
 router.get('/', async (req: Request, res: Response) => {
-  res.send(courses);
+  res.send(Courses.findAll());
 })
 
-router.get('/:id([0-9]+)', async (req: Request, res: Response) => {
+router.get('/:id([0-9]+)', findCourse, async (req: Request, res: Response) => {
   const { id } = req.params;
-  
-  res.send(courses.find(course => course.id == parseInt(id)))
+
+  res.send(Courses.find(id))
 })
 
-router.delete('/:id([0-9]+)', async (req: Request, res: Response) => {
-  const { id } = req.params;
+router.delete('/:id([0-9]+)', findCourse, async (req: Request, res: Response) => {
+  const { course } = res.locals;
 
-  res.send(courses.find(course => course.id == parseInt(id)))
+  res.send(course.delete())
 })
 
-router.put('/:id([0-9]+)', async (req: Request, res: Response) => {
-  const { id } = req.params;
+router.put('/:id([0-9]+)', findCourse, async (req: Request, res: Response) => {
+  let { course } = res.locals;
 
-  res.send(courses.find(course => course.id == parseInt(id)))
+  for (const column of Courses.Columns.filter(x => x != 'id')) {
+    (<any>course)[column] = (<any>req.body)[column]
+  }
+
+  res.send(course.save())
 })
 
 router.post('/', async (req: Request, res: Response) => {
-  const { name } = req.body;
-
-  res.send({ id: courses.length, name: name })
+  let course = new Courses(req.body);
+  res.send(course.save());
 })
 
 export default router;
