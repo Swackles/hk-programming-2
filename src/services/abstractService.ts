@@ -1,8 +1,3 @@
-interface Value {
-  column: string,
-  value: string
-}
-
 abstract class AbstractService {
   static Columns: string[];
   static Table: string;
