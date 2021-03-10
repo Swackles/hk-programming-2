@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { Courses, Lecturers, Rooms, Subjects, Timetables } from './../services/';
+import { Courses, Lecturers, Rooms, Subjects, Timetables, Users } from './../services/';
 
 
 async function findCourse(req: Request, res: Response, next: NextFunction) {
@@ -55,6 +55,17 @@ async function findTimetable(req: Request, res: Response, next: NextFunction) {
     coursesId: 1
   });
   next();
+}
+
+async function findUser(req: Request, res: Response) {
+  const { email } = req.body;
+
+  const user = Users.getUserWithEmail(email)
+  res.locals.user = new Users({
+    id: 1,
+    email: email,
+    password: 'password'
+  })
 }
 
 export { findCourse, findLecturer, findRoom, findSubject, findTimetable };

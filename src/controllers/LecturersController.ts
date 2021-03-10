@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import { authenticate } from './../middleware/authMiddleware';
 import { findLecturer } from './../middleware/findMiddleware';
 import { Lecturers } from './../services/';
 
@@ -14,13 +15,13 @@ router.get('/:id([0-9]+)', findLecturer, async (req: Request, res: Response) => 
   res.send(Lecturers.find(id))
 })
 
-router.delete('/:id([0-9]+)', findLecturer, async (req: Request, res: Response) => {
+router.delete('/:id([0-9]+)', authenticate, findLecturer, async (req: Request, res: Response) => {
   const { lecturer } = res.locals;
 
   res.send(lecturer.delete())
 })
 
-router.put('/:id([0-9]+)', findLecturer, async (req: Request, res: Response) => {
+router.put('/:id([0-9]+)', authenticate, findLecturer, async (req: Request, res: Response) => {
   let { lecturer } = res.locals;
 
   for (const column of Lecturers.Columns.filter(x => x != 'id')) {
@@ -30,7 +31,7 @@ router.put('/:id([0-9]+)', findLecturer, async (req: Request, res: Response) => 
   res.send(lecturer.save())
 })
 
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', authenticate, async (req: Request, res: Response) => {
   let lecturer = new Lecturers(req.body);
   res.send(lecturer.save());
 })

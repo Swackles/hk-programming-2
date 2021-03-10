@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import { authenticate } from './../middleware/authMiddleware';
 import { findSubject } from './../middleware/findMiddleware';
 import { Subjects } from './../services/';
 
@@ -14,13 +15,13 @@ router.get('/:id([0-9]+)', findSubject, async (req: Request, res: Response) => {
   res.send(Subjects.find(id))
 })
 
-router.delete('/:id([0-9]+)', findSubject, async (req: Request, res: Response) => {
+router.delete('/:id([0-9]+)', authenticate, findSubject, async (req: Request, res: Response) => {
   const { subject } = res.locals;
 
   res.send(subject.delete())
 })
 
-router.put('/:id([0-9]+)', findSubject, async (req: Request, res: Response) => {
+router.put('/:id([0-9]+)', authenticate, findSubject, async (req: Request, res: Response) => {
   let { subject } = res.locals;
 
   for (const column of Subjects.Columns.filter(x => x != 'id')) {
@@ -30,7 +31,7 @@ router.put('/:id([0-9]+)', findSubject, async (req: Request, res: Response) => {
   res.send(subject.save())
 })
 
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', authenticate, async (req: Request, res: Response) => {
   let subject = new Subjects(req.body);
   res.send(subject.save());
 })

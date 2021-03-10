@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import { authenticate } from './../middleware/authMiddleware';
 import { findRoom } from './../middleware/findMiddleware';
 import { Rooms } from './../services/';
 
@@ -14,13 +15,13 @@ router.get('/:id([0-9]+)', findRoom, async (req: Request, res: Response) => {
   res.send(Rooms.find(id))
 })
 
-router.delete('/:id([0-9]+)', findRoom, async (req: Request, res: Response) => {
+router.delete('/:id([0-9]+)', authenticate, findRoom, async (req: Request, res: Response) => {
   const { room } = res.locals;
 
   res.send(room.delete())
 })
 
-router.put('/:id([0-9]+)', findRoom, async (req: Request, res: Response) => {
+router.put('/:id([0-9]+)', authenticate, findRoom, async (req: Request, res: Response) => {
   let { room } = res.locals;
 
   for (const column of Rooms.Columns.filter(x => x != 'id')) {
@@ -30,7 +31,7 @@ router.put('/:id([0-9]+)', findRoom, async (req: Request, res: Response) => {
   res.send(room.save())
 })
 
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', authenticate, async (req: Request, res: Response) => {
   let room = new Rooms(req.body);
   res.send(room.save());
 })

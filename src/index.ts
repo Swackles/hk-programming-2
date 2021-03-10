@@ -4,10 +4,10 @@ import logger from 'morgan';
 import bodyParser from 'body-parser';
 
 /* Controllers */
-import { rooms, lecturers, subjects, courses, timetables }  from './controllers/';
+import { rooms, lecturers, subjects, courses, timetables, auth }  from './controllers/';
 
 /* Services */
-import { Courses, Lecturers, Rooms, Subjects, Timetables } from './services/';
+import { Courses, Lecturers, Rooms, Subjects, Timetables, Users } from './services/';
 
 declare module 'express' {
   export interface Response {
@@ -16,10 +16,12 @@ declare module 'express' {
       lecturer?: Lecturers,
       room?: Rooms,
       subject?: Subjects,
-      timetable?: Timetables
+      timetable?: Timetables,
+      user?: Users
     }
   }
   export interface Request {
+    body: { email?: string, password?: string }
     params: { id?: number }
   }
 }
@@ -32,6 +34,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/', auth);
 app.use('/rooms', rooms);
 app.use('/lecturers', lecturers);
 app.use('/subjects', subjects);
